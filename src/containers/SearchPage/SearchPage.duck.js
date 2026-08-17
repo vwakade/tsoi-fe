@@ -449,6 +449,10 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
         'publicData.shippingEnabled',
         'publicData.priceVariationsEnabled',
         'publicData.priceVariants',
+        // Needed by SearchResultsPanel to show the category as a card overline.
+        // Sparse fieldsets drop anything not listed here, so omitting it makes the
+        // overline silently blank even when the listing has a category.
+        'publicData.categoryLevel1',
       ],
       'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
       'fields.image': [

@@ -296,6 +296,8 @@ const getSearchParams = config => {
       'publicData.shippingEnabled',
       'publicData.priceVariationsEnabled',
       'publicData.priceVariants',
+      // Needed by SearchResultsPanel to show the category as a card overline.
+      'publicData.categoryLevel1',
     ],
     'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
     'fields.image': [

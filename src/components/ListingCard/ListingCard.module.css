@@ -127,3 +127,17 @@
   word-break: break-word;
   hyphens: auto;
 }
+
+/**
+ * Optional label above the title, opt-in via the `overline` prop.
+ * Not accounted for in SectionListings' calculateCarouselHeight() — see ListingCard.js.
+ */
+.overline {
+  composes: marketplaceTinyFontStyles from global;
+  font-weight: var(--fontWeightMedium);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--marketplaceColor);
+  margin: 0;
+  padding-bottom: 2px;
+}

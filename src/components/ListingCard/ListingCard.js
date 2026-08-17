@@ -93,6 +93,10 @@ const ListingCardImage = props => {
  * @param {string?} props.renderSizes for img/srcset
  * @param {Function?} props.setActiveListing
  * @param {boolean?} props.showAuthorInfo
+ * @param {ReactNode?} props.overline small label rendered above the title (e.g. a category).
+ *   Opt-in: when omitted the card renders exactly as before. Note that passing it makes the
+ *   card taller, so do not pass it from SectionListings — calculateCarouselHeight() there
+ *   hardcodes card heights and does not account for it.
  * @returns {JSX.Element} listing card to be used in search result panel etc.
  */
 export const ListingCard = props => {
@@ -109,6 +113,7 @@ export const ListingCard = props => {
     setActiveListing,
     showAuthorInfo = true,
     lazyLoadImage = true,
+    overline,
   } = props;
 
   const translations = getListingCardTranslations(listing, config, intl);
@@ -184,6 +189,7 @@ export const ListingCard = props => {
           </div>
         ) : null}
         <div className={css.mainInfo}>
+          {overline ? <div className={css.overline}>{overline}</div> : null}
           {showListingImage && (
             <div className={classNames(css.title, { [css.lightText]: darkMode })}>
               {titleFormatted}

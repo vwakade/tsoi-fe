@@ -100,6 +100,63 @@ const post = (path, body, options = {}) => {
   return request(path, requestOptions);
 };
 
+// The svc endpoints exchange plain JSON, not transit. Setting the header explicitly
+// keeps `request` from serializing bodies as transit for these calls.
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
+
+const getJson = (path, options = {}) =>
+  request(path, { ...options, method: methods.GET, headers: JSON_HEADERS });
+
+// ================ Custom backend service (svc) ================ //
+//
+// These are proxied through this app's own server (server/api/svc/*), which
+// forwards them to svc with the caller's Sharetribe access token. The browser
+// never talks to svc directly, so there is no CORS or CSP handling here.
+
+// Errors from svc use a stable envelope: { error: { code, message, details }, requestId }.
+// Branch on `error.code`, never on `error.message` — the message is not an interface.
+// The proxy in server/api-util/svc.js synthesizes its own failures in the same shape.
+
+// Fetch svc's health. This is the only svc endpoint that is LIVE today, so it is
+// what verifies the proxy wiring end to end.
+//
+// A 503 means "degraded", which is a valid answer rather than a failure — the body
+// still carries { status, checks, timestamp }. `request` rejects on any status >= 400,
+// so unwrap that case back into a normal result.
+//
+// See `server/api/svc/health.js`.
+export const fetchSvcHealth = () => {
+  return getJson('/api/svc/health').catch(e => {
+    const isDegradedReport = e?.status && e?.checks;
+    if (isDegradedReport) {
+      return { status: e.status, checks: e.checks, timestamp: e.timestamp };
+    }
+    throw e;
+  });
+};
+
+// Fetch the current user's approval status.
+//
+// Approval state lives in Sharetribe metadata, which is operator-only, so the user's
+// own session cannot read it — this endpoint is the only source. Do not try to derive
+// it from the profile.
+//
+// Returns { approvalState: 'pending' | 'approved' | 'rejected' }. Note the values are
+// lowercase on the wire; capitalized labels belong to the UI layer only.
+//
+// Approval gates publishing, not creating: a pending teacher can build drafts but
+// cannot publish them.
+//
+// NOTE: PLANNED in the svc contract, not yet LIVE. svc answers NOT_FOUND until it
+// ships — and per contract §3 a NOT_FOUND never by itself means "not built yet".
+//
+// See `server/api/svc/approval-status.js`.
+export const fetchApprovalStatus = () => {
+  return getJson('/api/svc/approval-status');
+};
+
+// ================ This app's own server ================ //
+
 // Fetch transaction line items from the local API endpoint.
 //
 // See `server/api/transaction-line-items.js` to see what data should

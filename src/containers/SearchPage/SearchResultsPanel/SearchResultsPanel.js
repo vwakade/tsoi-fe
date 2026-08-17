@@ -1,10 +1,48 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { useConfiguration } from '../../../context/configurationContext';
 import { propTypes } from '../../../util/types';
 import { ListingCard, PaginationLinks } from '../../../components';
 
 import css from './SearchResultsPanel.module.css';
+
+// Listing types that represent a person rather than a bookable thing, so the
+// author line is redundant — a teacher-profile listing *is* the teacher.
+const PROFILE_LIKE_LISTING_TYPES = ['teacher-profile'];
+
+/**
+ * Presentation tweaks for a card, derived from the listing's type.
+ *
+ * Kept here rather than inside ListingCard so the shared component stays generic
+ * and upgradeable — see the `overline` prop note in ListingCard.js.
+ *
+ * NOTE: the card image aspect ratio is deliberately NOT overridden per type. Image
+ * variants are generated at the marketplace-wide `layout.listingImage.aspectRatio`,
+ * and nothing sets `object-fit` on the img, so forcing a different box ratio here
+ * would stretch the photo. Changing the ratio is a Console-level decision.
+ *
+ * @param {Object} listing API entity
+ * @param {Array} categories config.categoryConfiguration.categories
+ * @returns {Object} extra props for ListingCard
+ */
+const cardPropsForListing = (listing, categories = []) => {
+  const publicData = listing?.attributes?.publicData || {};
+  const { listingType, categoryLevel1 } = publicData;
+
+  if (!PROFILE_LIKE_LISTING_TYPES.includes(listingType)) {
+    return {};
+  }
+
+  const category = categories.find(c => c.id === categoryLevel1);
+
+  return {
+    showAuthorInfo: false,
+    // `name` is the label authored in Console; fall back to nothing rather than
+    // showing a raw id.
+    overline: category?.name || null,
+  };
+};
 
 /**
  * SearchResultsPanel component
@@ -32,6 +70,8 @@ const SearchResultsPanel = props => {
     listingTypeParam,
     intl,
   } = props;
+  const config = useConfiguration();
+  const categories = config.categoryConfiguration?.categories || [];
   const classes = classNames(rootClassName || css.root, className);
   const pageName = listingTypeParam ? 'SearchPageWithListingType' : 'SearchPage';
 
@@ -82,6 +122,7 @@ const SearchResultsPanel = props => {
               listing={l}
               renderSizes={cardRenderSizes(isMapVariant)}
               setActiveListing={setActiveListing}
+              {...cardPropsForListing(l, categories)}
             />
           </li>
         ))}
