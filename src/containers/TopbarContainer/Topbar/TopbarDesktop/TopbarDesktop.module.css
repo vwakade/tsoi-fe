@@ -307,3 +307,16 @@
     }
   }
 }
+
+/**
+ * Active state for a top-level nav link (e.g. the role dashboard), matching the
+ * design's highlighted "Teacher Dashboard" entry.
+ */
+.topbarLinkActive {
+  color: var(--marketplaceColor);
+
+  &:hover {
+    color: var(--marketplaceColor);
+    text-decoration: none;
+  }
+}

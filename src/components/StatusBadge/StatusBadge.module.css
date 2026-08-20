@@ -1,0 +1,30 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  composes: marketplaceTinyFontStyles from global;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 100px;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.toneSuccess {
+  color: var(--colorSuccess);
+  background-color: var(--colorSuccessSubtle);
+}
+
+.toneAttention {
+  color: var(--colorAttentionDark);
+  background-color: var(--colorAttentionSubtle);
+}
+
+.toneFail {
+  color: var(--colorFail);
+  background-color: var(--colorFailSubtle);
+}
+
+.toneNeutral {
+  color: var(--colorGrey600);
+  background-color: var(--colorGrey50);
+}

@@ -265,3 +265,46 @@ export const getCurrentUserTypeRoles = (config, currentUser) => {
     }
   );
 };
+
+/**
+ * Whether the current user should be shown admin UI.
+ *
+ * ⚠️ PROVISIONAL — the svc contract exposes no way for the browser to learn that a
+ * user is an operator. svc loads roles itself via the Integration API, and
+ * /me/approval-status reports approval state, not role. Candidates under discussion:
+ * a /me/permissions projection on svc, an ops-written publicData flag (what this reads
+ * today), or probing an admin endpoint and hiding on FORBIDDEN.
+ *
+ * This gates *rendering only*. svc re-checks operator authority on every privileged
+ * action, so a wrong answer here is a UX bug, never a security hole. Keep this the
+ * single place that decides, so swapping the mechanism is a one-line change.
+ *
+ * @param {Object} currentUser API entity
+ * @returns {boolean} true if admin UI should render
+ */
+export const isAdminUser = currentUser => {
+  return currentUser?.attributes?.profile?.publicData?.isAdmin === true;
+};
+
+/**
+ * The user's marketplace role, from publicData.userType.
+ *
+ * Sharetribe allows exactly one userType per user, so "multi-persona" comes from the
+ * roles attached to that type, not from multiple types. With the current Console
+ * config: `teacher` carries both provider and customer roles (so a teacher can also
+ * book, and sees both a Teacher and a Student view), while `venue` is provider-only.
+ *
+ * Admin is deliberately absent — it is not a userType. See isAdminUser.
+ *
+ * @param {Object} currentUser API entity
+ * @returns {string|null} 'student' | 'teacher' | 'venue' | other configured type
+ */
+export const getUserType = currentUser => {
+  return currentUser?.attributes?.profile?.publicData?.userType || null;
+};
+
+/** @returns {boolean} true if the user's type is 'teacher' */
+export const isTeacherUser = currentUser => getUserType(currentUser) === 'teacher';
+
+/** @returns {boolean} true if the user's type is 'venue' */
+export const isVenueUser = currentUser => getUserType(currentUser) === 'venue';

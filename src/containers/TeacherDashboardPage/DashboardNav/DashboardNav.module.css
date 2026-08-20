@@ -1,0 +1,45 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  padding: 0 24px;
+
+  @media (--viewportMedium) {
+    padding: 24px 0 0 0;
+  }
+}
+
+.heading {
+  composes: marketplaceTinyFontStyles from global;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: var(--fontWeightBold);
+  color: var(--colorGrey900);
+  margin: 12px 0;
+
+  @media (--viewportMedium) {
+    margin: 0 0 12px 0;
+  }
+}
+
+.tabs {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+
+  @media (--viewportMedium) {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+}
+
+.tab {
+  margin-left: 16px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  @media (--viewportMedium) {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,38 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  margin: 0 0 24px 0;
+
+  @media (--viewportMedium) {
+    margin: 0 0 32px 0;
+  }
+}
+
+.eyebrow {
+  composes: marketplaceTinyFontStyles from global;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--marketplaceColor);
+  font-weight: var(--fontWeightMedium);
+  margin: 0;
+}
+
+.title {
+  margin: 6px 0 0 0;
+
+  @media (--viewportMedium) {
+    margin: 8px 0 0 0;
+  }
+}
+
+.subtitle {
+  composes: textSmall from global;
+  max-width: 640px;
+  color: var(--colorGrey600);
+  margin: 6px 0 0 0;
+
+  @media (--viewportMedium) {
+    margin: 8px 0 0 0;
+  }
+}

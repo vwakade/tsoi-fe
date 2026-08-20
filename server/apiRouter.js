@@ -20,6 +20,7 @@ const deleteAccount = require('./api/delete-account');
 // Custom backend service ("svc") proxy endpoints. See server/api-util/svc.js.
 const svcHealth = require('./api/svc/health');
 const svcApprovalStatus = require('./api/svc/approval-status');
+const svcAdminApprovals = require('./api/svc/admin-approvals');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
@@ -36,6 +37,13 @@ router.use(
     type: 'application/transit+json',
   })
 );
+
+// Parse plain JSON bodies, used by the svc proxy endpoints.
+// Needed here rather than relying on server/index.js, where the JSON parser is only
+// mounted when CSP is enabled — and the dev apiServer.js mounts none at all. Without
+// this, req.body is undefined for JSON POSTs in development.
+// Only engages for Content-Type: application/json, so the Transit path above is untouched.
+router.use(bodyParser.json());
 
 // Deserialize Transit body string to JS data
 router.use((req, res, next) => {
@@ -69,6 +77,12 @@ router.get('/svc/health', svcHealth);
 // PLANNED in the svc contract (Domain 8, Sprint S1) and gated on the auth decision
 // in contract §0. The proxy is ready; svc will answer NOT_FOUND until it ships.
 router.get('/svc/approval-status', svcApprovalStatus);
+
+// Admin approval queue. svc re-checks operator authority on each of these; the
+// browser-side admin check only decides what renders.
+router.get('/svc/admin/approvals', svcAdminApprovals.list);
+router.post('/svc/admin/approvals/:userId/approve', svcAdminApprovals.approve);
+router.post('/svc/admin/approvals/:userId/reject', svcAdminApprovals.reject);
 
 // Create user with identity provider (e.g. Facebook or Google)
 // This endpoint is called to create a new user after user has confirmed

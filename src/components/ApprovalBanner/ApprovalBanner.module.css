@@ -1,0 +1,48 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  border: 1px solid var(--colorGrey100);
+  border-left-width: 4px;
+  border-radius: var(--borderRadiusMedium);
+  padding: 16px 18px;
+  margin: 0 0 24px 0;
+
+  @media (--viewportMedium) {
+    padding: 20px 24px;
+    margin: 0 0 32px 0;
+  }
+}
+
+.pending {
+  border-left-color: var(--colorAttention);
+  background-color: var(--colorAttentionSubtle);
+}
+
+.rejected {
+  border-left-color: var(--colorFail);
+  background-color: var(--colorFailSubtle);
+}
+
+.neutral {
+  border-left-color: var(--colorGrey300);
+  background-color: var(--colorGrey50);
+}
+
+.title {
+  composes: h4 from global;
+  margin: 0;
+}
+
+.body {
+  composes: textSmall from global;
+  color: var(--colorGrey700);
+  margin: 4px 0 0 0;
+}
+
+.action {
+  composes: textSmall from global;
+  display: inline-block;
+  margin: 8px 0 0 0;
+  color: var(--marketplaceColor);
+  font-weight: var(--fontWeightSemiBold);
+}

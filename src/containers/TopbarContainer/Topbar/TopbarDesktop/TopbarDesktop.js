@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
+import { isTeacherUser, isVenueUser } from '../../../../util/userHelpers';
 import {
   Avatar,
   InlineTextButton,
@@ -34,6 +35,46 @@ const LoginLink = () => {
     <NamedLink id="login-link" name="LoginPage" className={css.topbarLink}>
       <span className={css.topbarLinkLabel}>
         <FormattedMessage id="TopbarDesktop.login" />
+      </span>
+    </NamedLink>
+  );
+};
+
+/**
+ * Top-level nav entry for the signed-in user's role dashboard.
+ *
+ * Lives in the main nav rather than the profile menu because it is a primary
+ * destination, and it carries an active state when you are on it.
+ *
+ * Role dashboards are mutually exclusive here: Sharetribe allows one userType per
+ * user, so a person is a teacher or a venue owner, never both.
+ */
+const DashboardLink = ({ currentUser, currentPage }) => {
+  const routeName = isTeacherUser(currentUser)
+    ? 'TeacherDashboardPage'
+    : isVenueUser(currentUser)
+    ? 'VenueDashboardPage'
+    : null;
+
+  if (!routeName) {
+    return null;
+  }
+
+  const messageId =
+    routeName === 'TeacherDashboardPage'
+      ? 'TopbarDesktop.teacherDashboardLink'
+      : 'TopbarDesktop.venueDashboardLink';
+
+  return (
+    <NamedLink
+      id="dashboard-link"
+      className={classNames(css.topbarLink, {
+        [css.topbarLinkActive]: currentPage === routeName,
+      })}
+      name={routeName}
+    >
+      <span className={css.topbarLinkLabel}>
+        <FormattedMessage id={messageId} />
       </span>
     </NamedLink>
   );
@@ -166,6 +207,10 @@ const TopbarDesktop = props => {
   const giveSpaceForSearch = customLinks == null || customLinks?.length === 0;
   const classes = classNames(rootClassName || css.root, className);
 
+  const dashboardLinkMaybe = authenticatedOnClientSide ? (
+    <DashboardLink currentUser={currentUser} currentPage={currentPage} />
+  ) : null;
+
   const inboxLinkMaybe = authenticatedOnClientSide ? (
     <InboxLink notificationCount={notificationCount} inboxTab={inboxTab} />
   ) : null;
@@ -221,6 +266,7 @@ const TopbarDesktop = props => {
         showCreateListingsLink={showCreateListingsLink}
       />
 
+      {dashboardLinkMaybe}
       {inboxLinkMaybe}
       {profileMenuMaybe}
       {signupLinkMaybe}

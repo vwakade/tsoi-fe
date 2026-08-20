@@ -1,0 +1,38 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--colorGrey100);
+  border-radius: var(--borderRadiusMedium);
+  background-color: var(--colorWhite);
+  padding: 18px;
+
+  @media (--viewportMedium) {
+    padding: 24px;
+  }
+}
+
+.label {
+  composes: marketplaceTinyFontStyles from global;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--colorGrey600);
+  font-weight: var(--fontWeightMedium);
+}
+
+.value {
+  margin: 6px 0 0 0;
+
+  @media (--viewportMedium) {
+    margin: 8px 0 0 0;
+  }
+}
+
+.accent {
+  color: var(--marketplaceColor);
+}
+
+.placeholder {
+  color: var(--colorGrey300);
+}

@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ensureCurrentUser } from '../../../../util/data';
+import { isTeacherUser, isVenueUser } from '../../../../util/userHelpers';
 
 import {
   AvatarLarge,
@@ -154,6 +155,20 @@ const TopbarMobileMenu = props => {
     return currentPage === page || isAccountSettingsPage || isInboxPage ? css.currentPage : null;
   };
 
+  const dashboardLinkMaybe = isTeacherUser(currentUser) ? (
+    <li className={classNames(css.navigationLink, currentPageClass('TeacherDashboardPage'))}>
+      <NamedLink name="TeacherDashboardPage">
+        <FormattedMessage id="TopbarMobileMenu.teacherDashboardLink" />
+      </NamedLink>
+    </li>
+  ) : isVenueUser(currentUser) ? (
+    <li className={classNames(css.navigationLink, currentPageClass('VenueDashboardPage'))}>
+      <NamedLink name="VenueDashboardPage">
+        <FormattedMessage id="TopbarMobileMenu.venueDashboardLink" />
+      </NamedLink>
+    </li>
+  ) : null;
+
   const manageListingsLinkMaybe = showCreateListingsLink ? (
     <li className={classNames(css.navigationLink, currentPageClass('ManageListingsPage'))}>
       <NamedLink name="ManageListingsPage">
@@ -180,6 +195,7 @@ const TopbarMobileMenu = props => {
               {notificationCountBadge}
             </NamedLink>
           </li>
+          {dashboardLinkMaybe}
           {manageListingsLinkMaybe}
           <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
             <NamedLink name="ProfileSettingsPage">

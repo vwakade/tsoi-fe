@@ -12,6 +12,9 @@ import { NamedRedirect } from '../components';
 
 const pageDataLoadingAPI = getPageDataLoadingAPI();
 
+const AdminTeachersPage = loadable(() => import(/* webpackChunkName: "AdminTeachersPage" */ '../containers/AdminTeachersPage/AdminTeachersPage'));
+const TeacherDashboardPage = loadable(() => import(/* webpackChunkName: "TeacherDashboardPage" */ '../containers/TeacherDashboardPage/TeacherDashboardPage'));
+const VenueDashboardPage = loadable(() => import(/* webpackChunkName: "VenueDashboardPage" */ '../containers/VenueDashboardPage/VenueDashboardPage'));
 const AuthenticationPage = loadable(() => import(/* webpackChunkName: "AuthenticationPage" */ '../containers/AuthenticationPage/AuthenticationPage'));
 const CheckoutPage = loadable(() => import(/* webpackChunkName: "CheckoutPage" */ '../containers/CheckoutPage/CheckoutPage'));
 const CMSPage = loadable(() => import(/* webpackChunkName: "CMSPage" */ '../containers/CMSPage/CMSPage'));
@@ -433,6 +436,45 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       path: '/no-:missingAccessRight',
       name: 'NoAccessPage',
       component: NoAccessPage,
+    },
+    // Teacher hub. Thin on purpose: it carries the approval banner and links into
+    // InboxPage / ManageListingsPage rather than reimplementing them.
+    {
+      path: '/teacher',
+      name: 'TeacherDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: TeacherDashboardPage,
+      loadData: pageDataLoadingAPI.TeacherDashboardPage.loadData,
+    },
+    // Venue hub. Same thin shape as the teacher one.
+    {
+      path: '/venue',
+      name: 'VenueDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: VenueDashboardPage,
+      loadData: pageDataLoadingAPI.VenueDashboardPage.loadData,
+    },
+    // Student "dashboard". The design's student overview is exactly the orders inbox,
+    // which the template already implements with paging, transaction states and empty
+    // states — so this is a named entry point rather than a second implementation.
+    {
+      path: '/student',
+      name: 'StudentDashboardPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: () => <NamedRedirect name="InboxPage" params={{ tab: 'orders' }} />,
+    },
+    // Admin section. `auth` only proves the user is logged in; the page itself checks
+    // for operator rights, and svc re-checks authority on every privileged action.
+    {
+      path: '/admin/teachers',
+      name: 'AdminTeachersPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminTeachersPage,
+      loadData: pageDataLoadingAPI.AdminTeachersPage.loadData,
     },
     {
       path: '/notfound',

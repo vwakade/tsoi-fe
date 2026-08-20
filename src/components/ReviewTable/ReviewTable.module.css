@@ -1,0 +1,48 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  overflow-x: auto;
+  border: 1px solid var(--colorGrey100);
+  border-radius: var(--borderRadiusMedium);
+  background-color: var(--colorWhite);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headCell {
+  composes: marketplaceTinyFontStyles from global;
+  padding: 12px 16px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--colorGrey600);
+  font-weight: var(--fontWeightMedium);
+  white-space: nowrap;
+}
+
+.row {
+  border-top: 1px solid var(--colorGrey100);
+}
+
+.cell {
+  composes: textSmall from global;
+  padding: 12px 16px;
+  vertical-align: top;
+  color: var(--colorGrey700);
+  margin: 0;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.emptyCell {
+  composes: textSmall from global;
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--colorGrey600);
+  border-top: 1px solid var(--colorGrey100);
+}

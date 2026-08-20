@@ -107,6 +107,14 @@ const JSON_HEADERS = { 'Content-Type': 'application/json' };
 const getJson = (path, options = {}) =>
   request(path, { ...options, method: methods.GET, headers: JSON_HEADERS });
 
+const postJson = (path, body, options = {}) =>
+  request(path, {
+    ...options,
+    method: methods.POST,
+    headers: JSON_HEADERS,
+    body: JSON.stringify(body || {}),
+  });
+
 // ================ Custom backend service (svc) ================ //
 //
 // These are proxied through this app's own server (server/api/svc/*), which
@@ -153,6 +161,35 @@ export const fetchSvcHealth = () => {
 // See `server/api/svc/approval-status.js`.
 export const fetchApprovalStatus = () => {
   return getJson('/api/svc/approval-status');
+};
+
+// Admin approval queue. `role` is 'teacher' or 'venue'; `status` is one of
+// 'pending' | 'approved' | 'rejected', or 'all'/undefined for no status filter.
+//
+// Approvals are keyed by userId, not by listing: approvalState lives in Sharetribe
+// metadata, which is operator-only, and both teachers and venues are approved as users.
+//
+// See `server/api/svc/admin-approvals.js`.
+export const fetchAdminApprovals = ({ role, status, page } = {}) => {
+  const query = new URLSearchParams({ role });
+  if (status && status !== 'all') {
+    query.set('status', status);
+  }
+  if (page) {
+    query.set('page', String(page));
+  }
+  return getJson(`/api/svc/admin/approvals?${query.toString()}`);
+};
+
+// Approve an applicant. Terminal: there is no un-approve, and no suspend.
+export const approveApplicant = userId => {
+  return postJson(`/api/svc/admin/approvals/${userId}/approve`, {});
+};
+
+// Reject an applicant. Terminal: there is no reinstate, which is why the UI asks for
+// a second confirmation. `reason` is optional and only forwarded when non-empty.
+export const rejectApplicant = (userId, reason) => {
+  return postJson(`/api/svc/admin/approvals/${userId}/reject`, reason ? { reason } : {});
 };
 
 // ================ This app's own server ================ //

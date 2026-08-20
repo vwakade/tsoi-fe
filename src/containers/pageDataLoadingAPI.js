@@ -1,6 +1,9 @@
 /**
  * Export loadData calls from ducks modules of different containers
  */
+import { loadData as AdminTeachersPageLoader } from './AdminTeachersPage/AdminTeachersPage.duck';
+import { loadData as TeacherDashboardPageLoader } from './TeacherDashboardPage/TeacherDashboardPage.duck';
+import { loadData as VenueDashboardPageLoader } from './VenueDashboardPage/VenueDashboardPage.duck';
 import { loadData as AuthenticationPageLoader } from './AuthenticationPage/AuthenticationPage.duck';
 import { loadData as LandingPageLoader } from './LandingPage/LandingPage.duck';
 import { setInitialValues as CheckoutPageInitialValues } from './CheckoutPage/CheckoutPage.duck';
@@ -26,6 +29,15 @@ import {
 
 const getPageDataLoadingAPI = () => {
   return {
+    AdminTeachersPage: {
+      loadData: AdminTeachersPageLoader,
+    },
+    TeacherDashboardPage: {
+      loadData: TeacherDashboardPageLoader,
+    },
+    VenueDashboardPage: {
+      loadData: VenueDashboardPageLoader,
+    },
     AuthenticationPage: {
       loadData: AuthenticationPageLoader,
     },

@@ -1,0 +1,97 @@
+@import '../../styles/customMediaQueries.css';
+
+.content {
+  width: 100%;
+  margin: 24px auto 0 auto;
+  padding: 0 24px;
+
+  @media (--viewportMedium) {
+    margin: 48px auto 0 auto;
+  }
+
+  @media (--viewportLarge) {
+    padding: 0 36px;
+    max-width: var(--contentMaxWidth);
+  }
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px 0;
+}
+
+.filterPill {
+  composes: marketplaceTinyFontStyles from global;
+  padding: 6px 16px;
+  border: 1px solid var(--colorGrey100);
+  border-radius: 100px;
+  color: var(--colorGrey700);
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--marketplaceColor);
+    text-decoration: none;
+  }
+}
+
+.filterPillSelected {
+  composes: filterPill;
+  border-color: var(--marketplaceColor);
+  background-color: var(--marketplaceColor);
+  color: var(--colorWhite);
+}
+
+.table {
+  margin-bottom: 24px;
+}
+
+.applicantName {
+  composes: textSmall from global;
+  font-weight: var(--fontWeightBold);
+  color: var(--colorGrey900);
+  margin: 0;
+}
+
+.applicantMeta {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Row buttons are much smaller than the default marketplace button. */
+.actionButton {
+  min-height: 0;
+  padding: 6px 12px;
+  width: auto;
+  white-space: nowrap;
+}
+
+.terminalNote {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey400);
+}
+
+.error {
+  composes: textSmall from global;
+  color: var(--colorFail);
+  margin: 0 0 12px 0;
+}
+
+.messagePanel {
+  padding: 36px 0;
+  text-align: center;
+}
+
+.messageBody {
+  composes: textSmall from global;
+  color: var(--colorGrey600);
+}
