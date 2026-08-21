@@ -2,6 +2,7 @@ import {
   pickUserFieldsData,
   initialValuesForUserFields,
   getPropsForCustomUserFieldInputs,
+  getDashboardRoute,
 } from './userHelpers';
 
 import { fakeIntl } from './testData';
@@ -349,5 +350,43 @@ describe('userHelpers', () => {
       const filteredConfig2 = expectedUserFieldInput(2, ['c', 'd']).filter(filterFn);
       expect(inputConfig2).toEqual(filteredConfig2);
     });
+  });
+});
+
+
+describe('getDashboardRoute', () => {
+  const userWith = publicData => ({ attributes: { profile: { publicData } } });
+
+  it('routes each role to its own dashboard', () => {
+    expect(getDashboardRoute(userWith({ userType: 'teacher' })).routeName).toEqual(
+      'TeacherDashboardPage'
+    );
+    expect(getDashboardRoute(userWith({ userType: 'venue' })).routeName).toEqual(
+      'VenueDashboardPage'
+    );
+    expect(getDashboardRoute(userWith({ userType: 'student' })).routeName).toEqual(
+      'StudentDashboardPage'
+    );
+  });
+
+  // Admin is a flag, not a userType, so an admin also carries an ordinary type. The
+  // admin check has to win or they get sent to that type's dashboard instead.
+  it('prefers the admin section for an admin, whatever their userType is', () => {
+    const adminTeacher = userWith({ userType: 'teacher', isAdmin: true });
+    expect(getDashboardRoute(adminTeacher).routeName).toEqual('AdminOverviewPage');
+  });
+
+  it('returns null for a user with no dashboard', () => {
+    // The leftover Sharetribe default types have no dashboard page of their own.
+    expect(getDashboardRoute(userWith({ userType: 'customer' }))).toBeNull();
+    expect(getDashboardRoute(userWith({}))).toBeNull();
+    expect(getDashboardRoute(null)).toBeNull();
+  });
+
+  it('gives every role a message key', () => {
+    ['teacher', 'venue', 'student'].forEach(userType => {
+      expect(getDashboardRoute(userWith({ userType })).messageKey).toBeTruthy();
+    });
+    expect(getDashboardRoute(userWith({ isAdmin: true })).messageKey).toBeTruthy();
   });
 });

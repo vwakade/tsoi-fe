@@ -12,7 +12,11 @@ import { NamedRedirect } from '../components';
 
 const pageDataLoadingAPI = getPageDataLoadingAPI();
 
+const AdminOverviewPage = loadable(() => import(/* webpackChunkName: "AdminOverviewPage" */ '../containers/AdminOverviewPage/AdminOverviewPage'));
+const AdminClassesPage = loadable(() => import(/* webpackChunkName: "AdminClassesPage" */ '../containers/AdminClassesPage/AdminClassesPage'));
+const AdminPlaceholderPage = loadable(() => import(/* webpackChunkName: "AdminPlaceholderPage" */ '../containers/AdminPlaceholderPage/AdminPlaceholderPage'));
 const AdminTeachersPage = loadable(() => import(/* webpackChunkName: "AdminTeachersPage" */ '../containers/AdminTeachersPage/AdminTeachersPage'));
+const AdminVenuesPage = loadable(() => import(/* webpackChunkName: "AdminVenuesPage" */ '../containers/AdminVenuesPage/AdminVenuesPage'));
 const TeacherDashboardPage = loadable(() => import(/* webpackChunkName: "TeacherDashboardPage" */ '../containers/TeacherDashboardPage/TeacherDashboardPage'));
 const VenueDashboardPage = loadable(() => import(/* webpackChunkName: "VenueDashboardPage" */ '../containers/VenueDashboardPage/VenueDashboardPage'));
 const AuthenticationPage = loadable(() => import(/* webpackChunkName: "AuthenticationPage" */ '../containers/AuthenticationPage/AuthenticationPage'));
@@ -469,12 +473,63 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
     // Admin section. `auth` only proves the user is logged in; the page itself checks
     // for operator rights, and svc re-checks authority on every privileged action.
     {
+      path: '/admin',
+      name: 'AdminOverviewPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminOverviewPage,
+      loadData: pageDataLoadingAPI.AdminOverviewPage.loadData,
+    },
+    {
       path: '/admin/teachers',
       name: 'AdminTeachersPage',
       auth: true,
       authPage: 'LoginPage',
       component: AdminTeachersPage,
       loadData: pageDataLoadingAPI.AdminTeachersPage.loadData,
+    },
+    {
+      path: '/admin/venues',
+      name: 'AdminVenuesPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminVenuesPage,
+      loadData: pageDataLoadingAPI.AdminVenuesPage.loadData,
+    },
+    // Teacher-provided venues, bookings and settings share one placeholder container:
+    // all three exist in the design but have no backend yet. Replace the component per
+    // route as each gains a data source.
+    {
+      path: '/admin/venues/teacher-provided',
+      name: 'AdminTeacherVenuesPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminPlaceholderPage,
+      extraProps: { section: 'teacherVenues' },
+    },
+    {
+      path: '/admin/classes',
+      name: 'AdminClassesPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminClassesPage,
+      loadData: pageDataLoadingAPI.AdminClassesPage.loadData,
+    },
+    {
+      path: '/admin/bookings',
+      name: 'AdminBookingsPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminPlaceholderPage,
+      extraProps: { section: 'bookings' },
+    },
+    {
+      path: '/admin/settings',
+      name: 'AdminSettingsPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: AdminPlaceholderPage,
+      extraProps: { section: 'settings' },
     },
     {
       path: '/notfound',

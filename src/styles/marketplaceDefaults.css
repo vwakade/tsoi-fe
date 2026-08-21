@@ -86,6 +86,17 @@
   --fontFamily: -apple-system, BlinkMacSystemFont, 'Inter', Helvetica, Arial, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 
+  /**
+   * Display face for page titles, section headings and stat figures, matching the
+   * School of Imperfection design. Loaded in public/index.html.
+   *
+   * Bebas Neue is uppercase-only and ships a single weight, so anything using it should
+   * leave font-weight alone. The fallbacks are condensed too, so a failed font load
+   * degrades to something narrow rather than to the body face.
+   */
+  --fontFamilyDisplay: 'Bebas Neue', 'Arial Narrow', 'Helvetica Neue Condensed', Impact,
+    var(--fontFamily);
+
   --fontWeightRegular: 400;
   --fontWeightMedium: 500;
   --fontWeightSemiBold: 600;

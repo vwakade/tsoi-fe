@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ensureCurrentUser } from '../../../../util/data';
-import { isTeacherUser, isVenueUser } from '../../../../util/userHelpers';
+import { getDashboardRoute, isTeacherUser } from '../../../../util/userHelpers';
 
 import {
   AvatarLarge,
@@ -56,6 +56,36 @@ const CustomLinkComponent = ({ linkConfig, currentPage }) => {
       </ExternalLink>
     </li>
   );
+};
+
+/**
+ * The three public catalogs, as menu items. Mirrors `BrowseLinks` in TopbarDesktop —
+ * same live Console listing type ids, same teacher-only rule for Browse Venues.
+ *
+ * @param {Object} options
+ * @param {boolean} options.showVenues include Browse Venues (teachers only)
+ * @param {boolean} options.withBorder render the menu-item border span, to match the
+ *   custom-links list in the unauthenticated menu
+ * @returns {Array<JSX.Element>}
+ */
+const browseMenuLinks = ({ showVenues, withBorder }) => {
+  const links = [
+    { listingType: 'teacher-profile', labelId: 'TopbarMobileMenu.browseTeachers' },
+    { listingType: 'events', labelId: 'TopbarMobileMenu.browseEvents' },
+  ];
+
+  if (showVenues) {
+    links.push({ listingType: 'venue', labelId: 'TopbarMobileMenu.browseVenues' });
+  }
+
+  return links.map(({ listingType, labelId }) => (
+    <li key={listingType} className={css.navigationLink}>
+      <NamedLink name="SearchPageWithListingType" params={{ listingType }}>
+        {withBorder ? <span className={css.menuItemBorder} /> : null}
+        <FormattedMessage id={labelId} />
+      </NamedLink>
+    </li>
+  ));
 };
 
 /**
@@ -133,7 +163,11 @@ const TopbarMobileMenu = props => {
             />
           </div>
 
-          <ul className={css.customLinksWrapper}>{extraLinks}</ul>
+          <ul className={css.customLinksWrapper}>
+            {/* Browsing is public, so these show for signed-out visitors too. */}
+            {browseMenuLinks({ showVenues: false, withBorder: true })}
+            {extraLinks}
+          </ul>
 
           <div className={css.spacer} />
         </div>
@@ -155,16 +189,13 @@ const TopbarMobileMenu = props => {
     return currentPage === page || isAccountSettingsPage || isInboxPage ? css.currentPage : null;
   };
 
-  const dashboardLinkMaybe = isTeacherUser(currentUser) ? (
-    <li className={classNames(css.navigationLink, currentPageClass('TeacherDashboardPage'))}>
-      <NamedLink name="TeacherDashboardPage">
-        <FormattedMessage id="TopbarMobileMenu.teacherDashboardLink" />
-      </NamedLink>
-    </li>
-  ) : isVenueUser(currentUser) ? (
-    <li className={classNames(css.navigationLink, currentPageClass('VenueDashboardPage'))}>
-      <NamedLink name="VenueDashboardPage">
-        <FormattedMessage id="TopbarMobileMenu.venueDashboardLink" />
+  // Shared with TopbarDesktop so the two menus cannot disagree about which roles have
+  // a dashboard — they previously each covered only teacher and venue.
+  const dashboard = getDashboardRoute(currentUser);
+  const dashboardLinkMaybe = dashboard ? (
+    <li className={classNames(css.navigationLink, currentPageClass(dashboard.routeName))}>
+      <NamedLink name={dashboard.routeName}>
+        <FormattedMessage id={`TopbarMobileMenu.${dashboard.messageKey}`} />
       </NamedLink>
     </li>
   ) : null;
@@ -189,6 +220,10 @@ const TopbarMobileMenu = props => {
         </InlineTextButton>
 
         <ul className={css.accountLinksWrapper}>
+          {browseMenuLinks({
+            showVenues: isTeacherUser(currentUser),
+            withBorder: false,
+          })}
           <li className={classNames(css.inbox, currentPageClass(`InboxPage:${inboxTab}`))}>
             <NamedLink name="InboxPage" params={{ tab: inboxTab }}>
               <FormattedMessage id="TopbarMobileMenu.inboxLink" />

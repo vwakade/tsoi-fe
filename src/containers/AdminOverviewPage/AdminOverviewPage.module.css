@@ -1,0 +1,151 @@
+@import '../../styles/customMediaQueries.css';
+
+.content {
+  width: 100%;
+  margin: 24px auto 0 auto;
+  padding: 0 24px;
+
+  @media (--viewportMedium) {
+    margin: 48px auto 0 auto;
+  }
+
+  @media (--viewportLarge) {
+    padding: 0 36px;
+    max-width: var(--contentMaxWidth);
+  }
+}
+
+.stats {
+  margin-bottom: 12px;
+}
+
+.footnote {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  margin: 0 0 24px 0;
+}
+
+.error {
+  composes: textSmall from global;
+  color: var(--colorFail);
+  margin: 0 0 16px 0;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  /* font-display text-3xl in the design. */
+  font-family: var(--fontFamilyDisplay);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* "N waiting" pill, in the design's tinted-primary treatment. */
+.waitingBadge {
+  composes: marketplaceTinyFontStyles from global;
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background-color: var(--colorGrey50);
+  color: var(--marketplaceColor);
+}
+
+/* Two columns from medium up, matching the design's side-by-side approval panels. */
+.panels {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel {
+  border: 1px solid var(--colorGrey100);
+  border-radius: var(--borderRadiusMedium);
+  padding: 20px;
+}
+
+.panelLabel {
+  composes: marketplaceTinyFontStyles from global;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--colorGrey600);
+  margin-bottom: 12px;
+}
+
+.panelNote {
+  composes: textSmall from global;
+  color: var(--colorGrey600);
+  margin: 0;
+}
+
+.panelList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panelItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--colorGrey100);
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.panelItemName {
+  composes: textSmall from global;
+  font-weight: var(--fontWeightBold);
+  color: var(--colorGrey900);
+}
+
+.panelItemMeta {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+}
+
+.panelItemLink {
+  composes: marketplaceTinyFontStyles from global;
+  flex-shrink: 0;
+  color: var(--marketplaceColor);
+  white-space: nowrap;
+}
+
+/* Stands in for a section the backend cannot supply yet. Dashed rather than solid, so
+   it reads as "nothing here yet" instead of as an empty data panel. */
+.placeholderPanel {
+  border: 1px dashed var(--colorGrey100);
+  border-radius: var(--borderRadiusMedium);
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.placeholderTitle {
+  margin: 0 0 6px 0;
+  color: var(--colorGrey700);
+}
+
+.placeholderBody {
+  composes: textSmall from global;
+  color: var(--colorGrey600);
+  margin: 0 auto;
+  max-width: 480px;
+}

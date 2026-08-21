@@ -16,41 +16,35 @@
 }
 
 .table {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
-/* The name is the primary way into the preview drawer, so it reads as text but acts
-   as a button. */
-.applicantNameButton {
+.classLink {
   composes: textSmall from global;
   font-weight: var(--fontWeightBold);
   color: var(--colorGrey900);
-  margin: 0;
-  text-align: left;
 
   &:hover {
     color: var(--marketplaceColor);
+    text-decoration: none;
   }
 }
 
-.applicantMeta {
+.viewLink {
   composes: marketplaceTinyFontStyles from global;
-  color: var(--colorGrey600);
-  margin: 0;
+  color: var(--marketplaceColor);
+  white-space: nowrap;
 }
 
-.error {
-  composes: textSmall from global;
-  color: var(--colorFail);
-  margin: 0 0 12px 0;
+/* States which columns the design has that this page cannot fill, so the gap reads as
+   known rather than as an oversight. */
+.footnote {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  margin: 0 0 24px 0;
 }
 
 .messagePanel {
   padding: 36px 0;
   text-align: center;
-}
-
-.messageBody {
-  composes: textSmall from global;
-  color: var(--colorGrey600);
 }

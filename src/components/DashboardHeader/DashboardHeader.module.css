@@ -19,6 +19,11 @@
 }
 
 .title {
+  /* font-display text-5xl in the design. Bebas Neue is uppercase-only, so no
+     text-transform is needed — and its tight default leading needs opening up. */
+  font-family: var(--fontFamilyDisplay);
+  letter-spacing: 1px;
+  line-height: 1.1;
   margin: 6px 0 0 0;
 
   @media (--viewportMedium) {

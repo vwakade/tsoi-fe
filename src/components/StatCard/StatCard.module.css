@@ -22,6 +22,10 @@
 }
 
 .value {
+  /* Design renders figures in the condensed display face. Bebas Neue sits high in its
+     box, so the letter-spacing keeps large numbers from looking cramped. */
+  font-family: var(--fontFamilyDisplay);
+  letter-spacing: 0.5px;
   margin: 6px 0 0 0;
 
   @media (--viewportMedium) {
@@ -35,4 +39,12 @@
 
 .placeholder {
   color: var(--colorGrey300);
+}
+
+/* Shown in place of a figure that has no data source yet. Small and muted on purpose:
+   rendered at value size it would read as a real, if odd, number. */
+.unavailable {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey400);
+  margin-top: 6px;
 }

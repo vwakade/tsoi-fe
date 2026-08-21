@@ -31,6 +31,19 @@ const getConfig = () => {
           unitType: 'fixed',
           defaultListingFields: { price: true, images: true },
         },
+        {
+          id: 'venue',
+          transactionProcess: { name: 'default-inquiry', alias: 'default-inquiry/release-1' },
+          unitType: 'inquiry',
+          defaultListingFields: { price: false, images: true },
+        },
+        // A type outside the three catalogs, to pin that they get no special casing.
+        {
+          id: 'product-selling',
+          transactionProcess: { name: 'default-purchase', alias: 'default-purchase/release-1' },
+          unitType: 'item',
+          defaultListingFields: { price: true, images: true },
+        },
       ],
     },
   };
@@ -70,15 +83,71 @@ describe('SearchResultsPanel', () => {
     expect(screen.queryByText('ListingCard.author')).not.toBeInTheDocument();
   });
 
-  it('leaves other listing types untouched — author shown, no overline', () => {
+  // The design's EventCard shows the category as an overline and keeps the teacher
+  // name, so unlike a teacher-profile card an events card gets both.
+  it('shows the category overline and keeps the author line for an events listing', () => {
     render(<SearchResultsPanel listings={[eventListing]} intl={fakeIntl} />, {
       config: getConfig(),
     });
 
     expect(screen.getByText('Wheel Throwing')).toBeInTheDocument();
     expect(screen.getByText('ListingCard.author')).toBeInTheDocument();
-    // 'Crafts' is the category of this listing but events cards get no overline.
-    expect(screen.queryByText('Crafts')).not.toBeInTheDocument();
+    expect(screen.getByText('Crafts')).toBeInTheDocument();
+  });
+
+  it('shows spots left on an events listing, from currentStock', () => {
+    const withStock = createListing(
+      'event2',
+      { title: 'Glazing Night', publicData: { listingType: 'events' } },
+      { author: createUser('eventUser2'), currentStock: { attributes: { quantity: 3 } } }
+    );
+
+    render(<SearchResultsPanel listings={[withStock]} intl={fakeIntl} />, {
+      config: getConfig(),
+    });
+
+    expect(screen.getByText('SearchResultsPanel.spotsLeft')).toBeInTheDocument();
+  });
+
+  // Absent stock means the listing does not track it, which is not the same as being
+  // sold out — so the line is omitted rather than reading "0 spots left".
+  it('omits spots left when the events listing has no currentStock', () => {
+    render(<SearchResultsPanel listings={[eventListing]} intl={fakeIntl} />, {
+      config: getConfig(),
+    });
+
+    expect(screen.queryByText('SearchResultsPanel.spotsLeft')).not.toBeInTheDocument();
+  });
+
+  it('shows capacity in the footer of a venue listing', () => {
+    const venueListing = createListing(
+      'venue1',
+      { title: 'The Kiln Room', publicData: { listingType: 'venue', capacity: 12 } },
+      { author: createUser('venueUser') }
+    );
+
+    render(<SearchResultsPanel listings={[venueListing]} intl={fakeIntl} />, {
+      config: getConfig(),
+    });
+
+    expect(screen.getByText('The Kiln Room')).toBeInTheDocument();
+    expect(screen.getByText('SearchResultsPanel.venueCapacity')).toBeInTheDocument();
+  });
+
+  it('leaves listing types outside the three catalogs untouched', () => {
+    const otherListing = createListing(
+      'other1',
+      { title: 'Some Product', publicData: { listingType: 'product-selling' } },
+      { author: createUser('otherUser') }
+    );
+
+    render(<SearchResultsPanel listings={[otherListing]} intl={fakeIntl} />, {
+      config: getConfig(),
+    });
+
+    expect(screen.getByText('Some Product')).toBeInTheDocument();
+    expect(screen.getByText('ListingCard.author')).toBeInTheDocument();
+    expect(screen.queryByText('SearchResultsPanel.venueCapacity')).not.toBeInTheDocument();
   });
 
   it('omits the overline when the listing has no category', () => {

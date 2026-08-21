@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../util/reactIntl';
 import { ACCOUNT_SETTINGS_PAGES } from '../../../../routing/routeConfiguration';
-import { isTeacherUser, isVenueUser } from '../../../../util/userHelpers';
+import { getDashboardRoute, isTeacherUser } from '../../../../util/userHelpers';
 import {
   Avatar,
   InlineTextButton,
@@ -41,29 +41,68 @@ const LoginLink = () => {
 };
 
 /**
+ * The three public catalogs — group A of the site nav, rendered first.
+ *
+ * Browse Venues is teacher-only: in the design, students and the public never see it.
+ *
+ * The path params are the **live Console listing type ids**. `nav-variants.md` still
+ * lists `teacher` / `event`; those ids do not exist on this marketplace and would
+ * render an empty catalog. Keep these in step with Console, not with the design doc.
+ *
+ * No selected state: the route name is the same for all three, so highlighting would
+ * need the path param and the template's own link components do not track it.
+ *
+ * `showVenues` is resolved by the caller from `authenticatedOnClientSide`, not from
+ * `currentUser` here — the server has no user, so deciding it during render would
+ * change the markup between SSR and hydration.
+ */
+const BrowseLinks = ({ showVenues }) => {
+  const links = [
+    { listingType: 'teacher-profile', labelId: 'TopbarDesktop.browseTeachers' },
+    { listingType: 'events', labelId: 'TopbarDesktop.browseEvents' },
+  ];
+
+  if (showVenues) {
+    links.push({ listingType: 'venue', labelId: 'TopbarDesktop.browseVenues' });
+  }
+
+  return (
+    <>
+      {links.map(({ listingType, labelId }) => (
+        <NamedLink
+          key={listingType}
+          name="SearchPageWithListingType"
+          params={{ listingType }}
+          className={css.topbarLink}
+        >
+          <span className={css.topbarLinkLabel}>
+            <FormattedMessage id={labelId} />
+          </span>
+        </NamedLink>
+      ))}
+    </>
+  );
+};
+
+/**
  * Top-level nav entry for the signed-in user's role dashboard.
  *
  * Lives in the main nav rather than the profile menu because it is a primary
  * destination, and it carries an active state when you are on it.
  *
- * Role dashboards are mutually exclusive here: Sharetribe allows one userType per
- * user, so a person is a teacher or a venue owner, never both.
+ * Which dashboard is decided by `getDashboardRoute`, shared with the mobile menu so the
+ * two cannot drift — they previously each covered only teacher and venue, which left
+ * students and admins with no way into their dashboards at all.
  */
 const DashboardLink = ({ currentUser, currentPage }) => {
-  const routeName = isTeacherUser(currentUser)
-    ? 'TeacherDashboardPage'
-    : isVenueUser(currentUser)
-    ? 'VenueDashboardPage'
-    : null;
+  const dashboard = getDashboardRoute(currentUser);
 
-  if (!routeName) {
+  if (!dashboard) {
     return null;
   }
 
-  const messageId =
-    routeName === 'TeacherDashboardPage'
-      ? 'TopbarDesktop.teacherDashboardLink'
-      : 'TopbarDesktop.venueDashboardLink';
+  const { routeName, messageKey } = dashboard;
+  const messageId = `TopbarDesktop.${messageKey}`;
 
   return (
     <NamedLink
@@ -257,6 +296,8 @@ const TopbarDesktop = props => {
         linkToExternalSite={config?.topbar?.logoLink}
       />
       {searchFormMaybe}
+
+      <BrowseLinks showVenues={authenticatedOnClientSide && isTeacherUser(currentUser)} />
 
       <CustomLinksMenu
         currentPage={currentPage}

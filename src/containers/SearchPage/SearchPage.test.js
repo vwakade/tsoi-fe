@@ -279,7 +279,7 @@ const getSearchParams = config => {
   return {
     page: 1,
     perPage: 24,
-    include: ['author', 'images'],
+    include: ['author', 'images', 'currentStock'],
     'fields.listing': [
       'title',
       'geolocation',
@@ -298,6 +298,8 @@ const getSearchParams = config => {
       'publicData.priceVariants',
       // Needed by SearchResultsPanel to show the category as a card overline.
       'publicData.categoryLevel1',
+      // Needed by SearchResultsPanel to show venue capacity in the card footer.
+      'publicData.capacity',
     ],
     'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
     'fields.image': [

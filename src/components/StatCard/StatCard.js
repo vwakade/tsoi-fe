@@ -19,11 +19,14 @@ import css from './StatCard.module.css';
  * @param {number|string} [props.value] the figure to show
  * @param {boolean} [props.inProgress] whether the value is still loading
  * @param {boolean} [props.accent] colour the value with the marketplace colour
+ * @param {string} [props.unavailableId] translation id explaining that this figure has
+ *   no data source yet. Renders instead of a value, and deliberately not as a large
+ *   number — an em-dash alone reads as "still loading", which this is not.
  * @param {string} [props.className]
  * @returns {JSX.Element}
  */
 const StatCard = props => {
-  const { labelId, value, inProgress, accent, className } = props;
+  const { labelId, value, inProgress, accent, unavailableId, className } = props;
   const hasValue = value !== null && value !== undefined;
 
   return (
@@ -31,9 +34,15 @@ const StatCard = props => {
       <span className={css.label}>
         <FormattedMessage id={labelId} />
       </span>
-      <H2 className={classNames(css.value, { [css.accent]: accent })}>
-        {inProgress || !hasValue ? <span className={css.placeholder}>&mdash;</span> : value}
-      </H2>
+      {unavailableId ? (
+        <span className={css.unavailable}>
+          <FormattedMessage id={unavailableId} />
+        </span>
+      ) : (
+        <H2 className={classNames(css.value, { [css.accent]: accent })}>
+          {inProgress || !hasValue ? <span className={css.placeholder}>&mdash;</span> : value}
+        </H2>
+      )}
     </div>
   );
 };

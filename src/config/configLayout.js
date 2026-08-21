@@ -9,8 +9,15 @@
 
 // There are 2 SearchPage variants that can be used:
 // 'map' & 'grid'
+//
+// 'grid' matches the School of Imperfection design (all three browse pages are grids),
+// and the map variant needs REACT_APP_MAPBOX_ACCESS_TOKEN, which is not set.
+//
+// NOTE: this is only the fallback. `mergeLayouts` in util/configHelpers.js prefers the
+// hosted layout asset whenever it specifies a variantType, so the live value has to be
+// set in Console as well — changing it here alone will not switch the deployed app.
 export const searchPage = {
-  variantType: 'map',
+  variantType: 'grid',
 };
 
 // ListingPage has 2 layout options: 'coverPhoto' and 'carousel'.

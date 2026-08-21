@@ -3,7 +3,10 @@
  * We are following Ducks module proposition:
  * https://github.com/erikras/ducks-modular-redux
  */
+import AdminClassesPage from './AdminClassesPage/AdminClassesPage.duck';
+import AdminOverviewPage from './AdminOverviewPage/AdminOverviewPage.duck';
 import AdminTeachersPage from './AdminTeachersPage/AdminTeachersPage.duck';
+import AdminVenuesPage from './AdminVenuesPage/AdminVenuesPage.duck';
 import TeacherDashboardPage from './TeacherDashboardPage/TeacherDashboardPage.duck';
 import VenueDashboardPage from './VenueDashboardPage/VenueDashboardPage.duck';
 import CheckoutPage from './CheckoutPage/CheckoutPage.duck';
@@ -26,7 +29,10 @@ import StripePayoutPage from './StripePayoutPage/StripePayoutPage.duck';
 import TransactionPage from './TransactionPage/TransactionPage.duck';
 
 export {
+  AdminClassesPage,
+  AdminOverviewPage,
   AdminTeachersPage,
+  AdminVenuesPage,
   CheckoutPage,
   ContactDetailsPage,
   EditListingPage,

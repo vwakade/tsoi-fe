@@ -11,6 +11,11 @@ import css from './SearchResultsPanel.module.css';
 // author line is redundant — a teacher-profile listing *is* the teacher.
 const PROFILE_LIKE_LISTING_TYPES = ['teacher-profile'];
 
+// Live Console listing type ids. Note the plural and the hyphen: the design docs say
+// 'event' and 'teacher', which do not exist on this marketplace.
+const LISTING_TYPE_EVENTS = 'events';
+const LISTING_TYPE_VENUE = 'venue';
+
 /**
  * Presentation tweaks for a card, derived from the listing's type.
  *
@@ -24,24 +29,48 @@ const PROFILE_LIKE_LISTING_TYPES = ['teacher-profile'];
  *
  * @param {Object} listing API entity
  * @param {Array} categories config.categoryConfiguration.categories
+ * @param {Object} intl react-intl instance
  * @returns {Object} extra props for ListingCard
  */
-const cardPropsForListing = (listing, categories = []) => {
+const cardPropsForListing = (listing, categories = [], intl) => {
   const publicData = listing?.attributes?.publicData || {};
-  const { listingType, categoryLevel1 } = publicData;
-
-  if (!PROFILE_LIKE_LISTING_TYPES.includes(listingType)) {
-    return {};
-  }
+  const { listingType, categoryLevel1, capacity } = publicData;
 
   const category = categories.find(c => c.id === categoryLevel1);
+  // `name` is the label authored in Console; fall back to nothing rather than showing
+  // a raw id.
+  const overline = category?.name || null;
 
-  return {
-    showAuthorInfo: false,
-    // `name` is the label authored in Console; fall back to nothing rather than
-    // showing a raw id.
-    overline: category?.name || null,
-  };
+  if (PROFILE_LIKE_LISTING_TYPES.includes(listingType)) {
+    return { showAuthorInfo: false, overline };
+  }
+
+  if (listingType === LISTING_TYPE_VENUE) {
+    return {
+      overline,
+      footer:
+        capacity == null
+          ? null
+          : intl.formatMessage({ id: 'SearchResultsPanel.venueCapacity' }, { count: capacity }),
+    };
+  }
+
+  if (listingType === LISTING_TYPE_EVENTS) {
+    // `currentStock` is a relationship, not publicData, and is only present because the
+    // search query includes it. Absent stock means an untracked listing, not zero
+    // spots — so render nothing rather than "0 spots left".
+    const stock = listing?.currentStock?.attributes?.quantity;
+
+    return {
+      overline,
+      footer:
+        stock == null
+          ? null
+          : intl.formatMessage({ id: 'SearchResultsPanel.spotsLeft' }, { count: stock }),
+    };
+  }
+
+  return {};
 };
 
 /**
@@ -122,7 +151,7 @@ const SearchResultsPanel = props => {
               listing={l}
               renderSizes={cardRenderSizes(isMapVariant)}
               setActiveListing={setActiveListing}
-              {...cardPropsForListing(l, categories)}
+              {...cardPropsForListing(l, categories, intl)}
             />
           </li>
         ))}

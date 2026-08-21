@@ -1,0 +1,43 @@
+@import '../../styles/customMediaQueries.css';
+
+.content {
+  width: 100%;
+  margin: 24px auto 0 auto;
+  padding: 0 24px;
+
+  @media (--viewportMedium) {
+    margin: 48px auto 0 auto;
+  }
+
+  @media (--viewportLarge) {
+    padding: 0 36px;
+    max-width: var(--contentMaxWidth);
+  }
+}
+
+/* Dashed rather than solid: this is "nothing here yet", not an empty data panel. */
+.panel {
+  border: 1px dashed var(--colorGrey100);
+  border-radius: var(--borderRadiusMedium);
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.panelTitle {
+  margin: 0 0 8px 0;
+  color: var(--colorGrey700);
+}
+
+.panelBody {
+  composes: textSmall from global;
+  color: var(--colorGrey600);
+  margin: 0 auto;
+  max-width: 520px;
+}
+
+.panelLink {
+  composes: textSmall from global;
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--marketplaceColor);
+}

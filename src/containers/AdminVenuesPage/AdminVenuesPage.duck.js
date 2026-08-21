@@ -1,9 +1,8 @@
 import { createApprovalQueue, FILTER_VALUES } from '../../util/approvalQueue';
 import { fetchCurrentUser } from '../../ducks/user.duck';
 
-// Teachers and venues are the same queue with a different svc role, so the slice, the
-// thunks and the query plumbing live in util/approvalQueue.js.
-const queue = createApprovalQueue({ name: 'AdminTeachersPage', role: 'teacher' });
+// Same queue as the teachers one with a different svc role — see util/approvalQueue.js.
+const queue = createApprovalQueue({ name: 'AdminVenuesPage', role: 'venue' });
 
 export { FILTER_VALUES };
 

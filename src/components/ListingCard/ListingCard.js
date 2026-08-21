@@ -93,6 +93,9 @@ const ListingCardImage = props => {
  * @param {string?} props.renderSizes for img/srcset
  * @param {Function?} props.setActiveListing
  * @param {boolean?} props.showAuthorInfo
+ * @param {ReactNode?} props.footer small line rendered below the title block (e.g. venue
+ *   capacity, or spots remaining on an event). Kept generic for the same reason as
+ *   `overline` — the caller decides what belongs there per listing type.
  * @param {ReactNode?} props.overline small label rendered above the title (e.g. a category).
  *   Opt-in: when omitted the card renders exactly as before. Note that passing it makes the
  *   card taller, so do not pass it from SectionListings — calculateCarouselHeight() there
@@ -114,6 +117,7 @@ export const ListingCard = props => {
     showAuthorInfo = true,
     lazyLoadImage = true,
     overline,
+    footer,
   } = props;
 
   const translations = getListingCardTranslations(listing, config, intl);
@@ -200,6 +204,7 @@ export const ListingCard = props => {
               {authorName}
             </div>
           ) : null}
+          {footer ? <div className={css.footer}>{footer}</div> : null}
         </div>
       </div>
     </NamedLink>

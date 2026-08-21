@@ -20,6 +20,7 @@ import {
   LayoutSideNavigation,
   NamedRedirect,
   Page,
+  PanelChips,
   PanelSection,
   ReviewFilterNav,
   ReviewPreviewPanel,
@@ -33,28 +34,33 @@ import TopbarContainer from '../TopbarContainer/TopbarContainer';
 import FooterContainer from '../FooterContainer/FooterContainer';
 
 // Same directory
-import { approve, reject } from './AdminTeachersPage.duck';
-import css from './AdminTeachersPage.module.css';
+import { approve, reject } from './AdminVenuesPage.duck';
+import css from './AdminVenuesPage.module.css';
 
 const COLUMNS = [
-  { key: 'name', labelId: 'AdminTeachersPage.columnTeacher' },
-  { key: 'discipline', labelId: 'AdminTeachersPage.columnDiscipline' },
+  { key: 'name', labelId: 'AdminVenuesPage.columnVenue' },
+  { key: 'type', labelId: 'AdminVenuesPage.columnType' },
   { key: 'applied', labelId: 'ReviewQueue.columnApplied' },
+  { key: 'capacity', labelId: 'AdminVenuesPage.columnCapacity' },
   { key: 'status', labelId: 'ReviewQueue.columnStatus' },
   { key: 'actions', labelId: 'ReviewQueue.columnActions', align: 'right' },
 ];
 
 /**
- * Admin queue for teacher applications.
+ * Admin queue for venue applications.
  *
- * The queue shape is shared with the venues queue — see `ReviewTable`,
- * `ReviewFilterNav`, `ReviewRowActions` and `ReviewPreviewPanel`. This file supplies
- * only the columns, the drawer body, and the teacher-specific copy.
+ * Structurally identical to the teachers queue — same table, filter pills, row actions
+ * and preview drawer, differing only in columns, drawer body and copy.
+ *
+ * The design's **Source** column and its teacher-provided rows are deliberately absent:
+ * svc serves `role=teacher|venue` and nothing else, so there is no endpoint behind the
+ * teacher-provided venues queue. Adding the column would imply a distinction this page
+ * cannot actually make.
  *
  * @component
  * @param {Object} props
  * @param {Object} props.currentUser current user entity
- * @param {Array} props.applicants applicants returned by svc
+ * @param {Array} props.applicants venue applications returned by svc
  * @param {boolean} props.queryInProgress whether the list is loading
  * @param {Object} props.queryError error from the list request
  * @param {string} props.decisionInProgressId userId with a decision in flight
@@ -65,7 +71,7 @@ const COLUMNS = [
  * @param {boolean} props.scrollingDisabled whether scrolling is disabled
  * @returns {JSX.Element}
  */
-export const AdminTeachersPageComponent = props => {
+export const AdminVenuesPageComponent = props => {
   const {
     currentUser,
     applicants = [],
@@ -84,15 +90,13 @@ export const AdminTeachersPageComponent = props => {
   const { status = 'all' } = parse(location.search);
   const currentStatus = FILTER_VALUES.includes(status) ? status : 'all';
 
-  // Which application the drawer is showing. Client-only UI state, so useState rather
-  // than the URL — unlike the status filter, it does not need to survive a refresh.
   const [previewId, setPreviewId] = useState(null);
 
-  // The route already requires authentication; this is the second gate. It decides
-  // only what renders — svc re-checks operator authority on every action.
+  // Second gate on top of the route's `auth`. It decides only what renders — svc
+  // re-checks operator authority on every action.
   if (currentUser?.id && !isAdminUser(currentUser)) {
-    // Home rather than NoAccessPage: that page only handles the four NO_ACCESS_PAGE_*
-    // rights and renders NotFoundPage for anything else.
+    // Home rather than NoAccessPage, which renders NotFoundPage for anything outside
+    // the four NO_ACCESS_PAGE_* rights.
     return <NamedRedirect name="LandingPage" />;
   }
 
@@ -112,13 +116,14 @@ export const AdminTeachersPageComponent = props => {
           >
             {applicant.name || applicant.email || applicant.id}
           </InlineTextButton>
-          {applicant.location ? (
-            <div className={css.applicantMeta}>{applicant.location}</div>
+          {applicant.neighborhood ? (
+            <div className={css.applicantMeta}>{applicant.neighborhood}</div>
           ) : null}
         </div>
       ),
-      discipline: applicant.discipline || '—',
+      type: applicant.venueType || '—',
       applied: formatApplied(applicant.appliedAt) || '—',
+      capacity: applicant.capacity ?? '—',
       status: <StatusBadge status={applicant.approvalState} />,
       actions: (
         <ReviewRowActions
@@ -133,25 +138,26 @@ export const AdminTeachersPageComponent = props => {
   }));
 
   const previewApplicant = applicants.find(a => a.id === previewId) || null;
+  const application = previewApplicant?.application || {};
 
   return (
     <Page
-      title={intl.formatMessage({ id: 'AdminTeachersPage.title' })}
+      title={intl.formatMessage({ id: 'AdminVenuesPage.title' })}
       scrollingDisabled={scrollingDisabled}
     >
       <LayoutSideNavigation
         topbar={<TopbarContainer />}
-        sideNav={<AdminNav currentPage="AdminTeachersPage" />}
+        sideNav={<AdminNav currentPage="AdminVenuesPage" />}
         footer={<FooterContainer />}
       >
         <div className={css.content}>
           <DashboardHeader
-            eyebrowId="AdminTeachersPage.eyebrow"
-            titleId="AdminTeachersPage.title"
-            subtitleId="AdminTeachersPage.subtitle"
+            eyebrowId="AdminVenuesPage.eyebrow"
+            titleId="AdminVenuesPage.title"
+            subtitleId="AdminVenuesPage.subtitle"
           />
 
-          <ReviewFilterNav currentStatus={currentStatus} pageName="AdminTeachersPage" />
+          <ReviewFilterNav currentStatus={currentStatus} pageName="AdminVenuesPage" />
 
           {decisionError ? (
             <p className={css.error}>
@@ -177,52 +183,60 @@ export const AdminTeachersPageComponent = props => {
               className={css.table}
               columns={COLUMNS}
               rows={rows}
-              emptyMessageId="AdminTeachersPage.empty"
+              emptyMessageId="AdminVenuesPage.empty"
             />
           )}
 
-          {/*
-            The drawer stays open after a decision. With no toast library in the project,
-            watching the badge in the panel flip to its terminal value is the only
-            confirmation the admin gets — closing on click would hide it.
-          */}
           <ReviewPreviewPanel
-            id="AdminTeachersPage.previewPanel"
+            id="AdminVenuesPage.previewPanel"
             isOpen={!!previewApplicant}
             onClose={() => setPreviewId(null)}
             onManageDisableScrolling={onManageDisableScrolling}
-            titleId="AdminTeachersPage.applicationTitle"
+            titleId="AdminVenuesPage.applicationTitle"
             status={previewApplicant?.approvalState}
-            name={previewApplicant?.name || previewApplicant?.email}
+            name={previewApplicant?.name}
             metaText={
-              [previewApplicant?.discipline, previewApplicant?.location]
+              [previewApplicant?.venueType, previewApplicant?.neighborhood]
                 .filter(Boolean)
                 .join(' · ') || null
             }
-            avatarUrl={previewApplicant?.photoUrl}
+            imageUrl={application.photoUrl || previewApplicant?.photoUrl}
             inProgress={!!previewApplicant && decisionInProgressId === previewApplicant.id}
             onApprove={() => onApprove(previewApplicant.id)}
             onReject={reason => onReject(previewApplicant.id, reason)}
           >
             {/*
-              Field names follow the design's teacher application. svc has not pinned the
+              Field names follow the design's venue application. svc has not pinned the
               per-applicant payload, so every section is optional and collapses when the
               key is absent — confirm the real shape once Domain 8 ships.
             */}
-            <PanelSection labelId="AdminTeachersPage.panelBio">
-              {previewApplicant?.bio}
+            <PanelSection labelId="AdminVenuesPage.panelAddress">
+              {application.address}
             </PanelSection>
-            <PanelSection labelId="AdminTeachersPage.panelEmail">
-              {previewApplicant?.email}
+            <PanelSection labelId="AdminVenuesPage.panelAbout">
+              {application.description || previewApplicant?.description}
             </PanelSection>
-            <PanelSection labelId="AdminTeachersPage.panelOriginStory">
-              {previewApplicant?.application?.originStory}
+            <PanelSection labelId="AdminVenuesPage.panelCapacity">
+              {previewApplicant?.capacity ?? application.capacity}
             </PanelSection>
-            <PanelSection labelId="AdminTeachersPage.panelWhoItsFor">
-              {previewApplicant?.application?.whoItsFor}
+            <PanelSection labelId="AdminVenuesPage.panelAgePolicy">
+              {application.agePolicy}
             </PanelSection>
-            <PanelSection labelId="AdminTeachersPage.panelTeachingFormat">
-              {previewApplicant?.application?.teachingFormat}
+            <PanelSection labelId="AdminVenuesPage.panelAlcoholPolicy">
+              {application.alcoholPolicy}
+            </PanelSection>
+            <PanelSection labelId="AdminVenuesPage.panelMaterialsProvided">
+              <PanelChips items={application.materialsProvided} />
+            </PanelSection>
+            <PanelSection labelId="AdminVenuesPage.panelMaterialsNotAllowed">
+              <PanelChips items={application.materialsNotAllowed} />
+            </PanelSection>
+            <PanelSection labelId="AdminVenuesPage.panelEventTypes">
+              <PanelChips items={application.eventTypes} />
+            </PanelSection>
+            <PanelSection labelId="AdminVenuesPage.panelContact">
+              {[application.contactName, application.contactEmail].filter(Boolean).join(' · ') ||
+                null}
             </PanelSection>
             <PanelSection labelId="ReviewQueue.panelApplied">
               {formatApplied(previewApplicant?.appliedAt)}
@@ -242,7 +256,7 @@ const mapStateToProps = state => {
     queryError,
     decisionInProgressId,
     decisionError,
-  } = state.AdminTeachersPage;
+  } = state.AdminVenuesPage;
 
   return {
     currentUser,
@@ -263,11 +277,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
 });
 
-const AdminTeachersPage = compose(
+const AdminVenuesPage = compose(
   connect(
     mapStateToProps,
     mapDispatchToProps
   )
-)(AdminTeachersPageComponent);
+)(AdminVenuesPageComponent);
 
-export default AdminTeachersPage;
+export default AdminVenuesPage;

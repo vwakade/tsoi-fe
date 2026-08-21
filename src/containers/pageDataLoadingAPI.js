@@ -1,7 +1,10 @@
 /**
  * Export loadData calls from ducks modules of different containers
  */
+import { loadData as AdminClassesPageLoader } from './AdminClassesPage/AdminClassesPage.duck';
+import { loadData as AdminOverviewPageLoader } from './AdminOverviewPage/AdminOverviewPage.duck';
 import { loadData as AdminTeachersPageLoader } from './AdminTeachersPage/AdminTeachersPage.duck';
+import { loadData as AdminVenuesPageLoader } from './AdminVenuesPage/AdminVenuesPage.duck';
 import { loadData as TeacherDashboardPageLoader } from './TeacherDashboardPage/TeacherDashboardPage.duck';
 import { loadData as VenueDashboardPageLoader } from './VenueDashboardPage/VenueDashboardPage.duck';
 import { loadData as AuthenticationPageLoader } from './AuthenticationPage/AuthenticationPage.duck';
@@ -29,8 +32,17 @@ import {
 
 const getPageDataLoadingAPI = () => {
   return {
+    AdminClassesPage: {
+      loadData: AdminClassesPageLoader,
+    },
+    AdminOverviewPage: {
+      loadData: AdminOverviewPageLoader,
+    },
     AdminTeachersPage: {
       loadData: AdminTeachersPageLoader,
+    },
+    AdminVenuesPage: {
+      loadData: AdminVenuesPageLoader,
     },
     TeacherDashboardPage: {
       loadData: TeacherDashboardPageLoader,

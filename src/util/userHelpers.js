@@ -267,6 +267,20 @@ export const getCurrentUserTypeRoles = (config, currentUser) => {
 };
 
 /**
+ * User ids listed in REACT_APP_ADMIN_USER_IDS, as a comma-separated list.
+ *
+ * Read on each call rather than at module load so tests can set the variable, and so a
+ * server restart is not needed to pick up a change during development.
+ *
+ * @returns {Array<string>} user uuids
+ */
+const adminIdAllowlist = () =>
+  (process.env.REACT_APP_ADMIN_USER_IDS || '')
+    .split(',')
+    .map(id => id.trim())
+    .filter(Boolean);
+
+/**
  * Whether the current user should be shown admin UI.
  *
  * ⚠️ PROVISIONAL — the svc contract exposes no way for the browser to learn that a
@@ -283,7 +297,20 @@ export const getCurrentUserTypeRoles = (config, currentUser) => {
  * @returns {boolean} true if admin UI should render
  */
 export const isAdminUser = currentUser => {
-  return currentUser?.attributes?.profile?.publicData?.isAdmin === true;
+  if (currentUser?.attributes?.profile?.publicData?.isAdmin === true) {
+    return true;
+  }
+
+  // ⚠️ INTERIM, remove once svc exposes roles. Console has no UI for editing a user's
+  // publicData, so without this there is no way to become an admin short of writing an
+  // Integration API script — which left the admin pages unreachable in development.
+  //
+  // Safe because this gates rendering only: svc re-checks operator authority on every
+  // privileged action, so an id listed here still cannot approve anything it should not.
+  // The value is inlined into the client bundle by REACT_APP_, so put user ids here and
+  // never anything secret.
+  const id = currentUser?.id?.uuid;
+  return !!id && adminIdAllowlist().includes(id);
 };
 
 /**
@@ -308,3 +335,36 @@ export const isTeacherUser = currentUser => getUserType(currentUser) === 'teache
 
 /** @returns {boolean} true if the user's type is 'venue' */
 export const isVenueUser = currentUser => getUserType(currentUser) === 'venue';
+
+/** @returns {boolean} true if the user's type is 'student' */
+export const isStudentUser = currentUser => getUserType(currentUser) === 'student';
+
+/**
+ * The dashboard route for a user, or null if they have none.
+ *
+ * Kept here rather than duplicated in TopbarDesktop and TopbarMobileMenu, which
+ * previously each handled only teacher and venue — so students, admins, and the
+ * leftover `customer` / `provider` types got no dashboard link at all.
+ *
+ * Admin is checked first: it is a flag rather than a userType, so an admin also has
+ * one of the ordinary types underneath and would otherwise match that instead.
+ *
+ * @param {Object} currentUser API entity
+ * @returns {{routeName: string, messageKey: string}|null}
+ */
+export const getDashboardRoute = currentUser => {
+  if (isAdminUser(currentUser)) {
+    return { routeName: 'AdminOverviewPage', messageKey: 'adminDashboardLink' };
+  }
+  if (isTeacherUser(currentUser)) {
+    return { routeName: 'TeacherDashboardPage', messageKey: 'teacherDashboardLink' };
+  }
+  if (isVenueUser(currentUser)) {
+    return { routeName: 'VenueDashboardPage', messageKey: 'venueDashboardLink' };
+  }
+  if (isStudentUser(currentUser)) {
+    // Redirects to the orders inbox — the student overview *is* the inbox.
+    return { routeName: 'StudentDashboardPage', messageKey: 'studentDashboardLink' };
+  }
+  return null;
+};

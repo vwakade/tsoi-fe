@@ -141,3 +141,12 @@
   margin: 0;
   padding-bottom: 2px;
 }
+
+/* Below the title block: venue capacity, or spots remaining on an event. Muted, so it
+   reads as metadata rather than competing with the title. */
+.footer {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  margin: 0;
+  padding-top: 2px;
+}

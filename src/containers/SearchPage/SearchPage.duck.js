@@ -432,7 +432,9 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
       ...listingTypeVariantMaybe,
       page,
       perPage: RESULT_PAGE_SIZE,
-      include: ['author', 'images'],
+      // 'currentStock' powers the "N spots left" line on event cards. It is a
+      // relationship, so without it the card silently renders nothing there.
+      include: ['author', 'images', 'currentStock'],
       'fields.listing': [
         'title',
         'geolocation',
@@ -453,6 +455,8 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
         // Sparse fieldsets drop anything not listed here, so omitting it makes the
         // overline silently blank even when the listing has a category.
         'publicData.categoryLevel1',
+        // Venue cards show capacity in the card footer. Same sparse-fieldset trap.
+        'publicData.capacity',
       ],
       'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
       'fields.image': [

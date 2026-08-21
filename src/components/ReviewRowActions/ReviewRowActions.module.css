@@ -1,0 +1,46 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Row buttons are much smaller than the default marketplace button. */
+.actionButton {
+  min-height: 0;
+  padding: 6px 12px;
+  width: auto;
+  white-space: nowrap;
+}
+
+.destructiveButton {
+  border-color: var(--colorFail);
+  color: var(--colorFail);
+
+  &:hover,
+  &:focus {
+    border-color: var(--colorFailDark);
+    color: var(--colorFailDark);
+  }
+}
+
+.previewButton {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  white-space: nowrap;
+  width: auto;
+}
+
+.cancelButton {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  white-space: nowrap;
+  width: auto;
+}
+
+.terminalNote {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey400);
+}
